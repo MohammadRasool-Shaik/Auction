@@ -18,8 +18,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import com.sapient.auction.enumerator.SaleStatus;
 
@@ -30,7 +28,7 @@ import com.sapient.auction.enumerator.SaleStatus;
  *
  */
 @Entity
-@Table(indexes = { @Index(name = "IDX_SALEX1", columnList = "productName, category") })
+@Table(indexes = { @Index(name = "IDX_SALEX1", columnList = "product_name, category") })
 public class Sale extends BaseEntity {
 
 	private static final long serialVersionUID = -6383848448656300979L;
@@ -40,17 +38,13 @@ public class Sale extends BaseEntity {
 	@Column(name = "id")
 	private Integer saleId;
 
-	@NotNull
-	@Min(value = 0)
 	@Column(name = "base_price")
 	private Double basePrice;
 
-	@NotNull
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "start_date")
 	private Date startDate;
 
-	@NotNull
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "end_date")
 	private Date endDate;
@@ -59,19 +53,22 @@ public class Sale extends BaseEntity {
 	@Column(nullable = false, length = 1)
 	private SaleStatus saleStatus;
 
+	@Column(name = "product_name", length = 100)
 	private String productName;
 
+	@Column(length = 250)
 	@Lob
 	private String productDescription;
 
+	@Column(length = 50)
 	private String category;
 
 	@Lob
 	@Column(name = "product_image")
-	private byte[] photo;
+	private String productImage;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id", nullable = false)
+	@JoinColumn(name = "user_id")
 	private User user;
 
 	/**
@@ -182,12 +179,19 @@ public class Sale extends BaseEntity {
 		this.category = category;
 	}
 
-	public byte[] getPhoto() {
-		return photo;
+	/**
+	 * @return the productImage
+	 */
+	public String getProductImage() {
+		return productImage;
 	}
 
-	public void setPhoto(byte[] photo) {
-		this.photo = photo;
+	/**
+	 * @param productImage
+	 *            the productImage to set
+	 */
+	public void setProductImage(String productImage) {
+		this.productImage = productImage;
 	}
 
 	public User getUser() {

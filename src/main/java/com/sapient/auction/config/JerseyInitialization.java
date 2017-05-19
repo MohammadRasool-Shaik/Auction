@@ -13,6 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JerseyInitialization extends ResourceConfig {
 	public JerseyInitialization() {
-		this.packages("com.sapient.auction.resource");
+		this.packages("com.sapient.auction.resource").packages("com.sapient.auction.provider");
 	}
 }

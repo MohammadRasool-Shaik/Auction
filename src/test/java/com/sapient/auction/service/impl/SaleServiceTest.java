@@ -1,5 +1,6 @@
 package com.sapient.auction.service.impl;
 
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -25,7 +26,6 @@ import com.sapient.auction.model.Sale;
 import com.sapient.auction.model.User;
 import com.sapient.auction.repository.SaleRepository;
 import com.sapient.auction.repository.UserRepository;
-import com.sapient.auction.service.ISaleService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = ApplicationBootStart.class)
@@ -33,7 +33,7 @@ public class SaleServiceTest {
 	
 	@Autowired
 	@InjectMocks
-	public ISaleService saleService;
+	public SaleService saleService;
 	
 	@Mock
 	public SaleRepository saleRepository;
@@ -60,8 +60,8 @@ public class SaleServiceTest {
 	public void testSuccessfulSaveOrUpdate(){
 		when(userRepository.findByEmail(any(String.class))).thenReturn(getUser());
 		when(saleRepository.save(any(Sale.class))).thenReturn(getSale());
-//		Sale responseSaleDto = saleService.saveOrUpdate(saleDto, "user@gmail.com");
-//		assertNotNull(responseSaleDto);
+		SaleDTO responseSaleDto = saleService.saveOrUpdate(saleDto, "user@gmail.com");
+		assertNotNull(responseSaleDto);
 	}
 	
 	private User getUser(){

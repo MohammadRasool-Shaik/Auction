@@ -3,15 +3,11 @@
  */
 package com.sapient.auction.model;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.OneToOne;
-import javax.validation.constraints.Pattern;
 
 import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.util.DigestUtils;
@@ -31,15 +27,12 @@ public class User extends AbstractPersistable<Long> {
 	 */
 	private static final long serialVersionUID = -6272073593793343818L;
 
-	@Pattern(regexp = "^[a-zA-Z0-9._-]{3,}$", message = "Display Name min 3 chars, alowd alphabets and ., -, _")
 	@Column(nullable = false)
 	private String displayName;
 
-	@Pattern(regexp = "[A-Za-z_.0-9-]+@{1}[a-z]+([.]{1}[a-z]{2,4})+", message = " Allowed alphabets (capital and small), 0 to 9, \".\", \"_\" and \"-\" before \"@\". Then exactly one \"@\" is allowed in whole email then small letters (1 or more) then multiple set of \".\" and alphabets (2 to 4)")
 	@Column(unique = true, nullable = false)
 	private String email;
 
-//	@Pattern(regexp = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,20})", message = "")
 	@Column(nullable = false)
 	private String password;
 
@@ -53,9 +46,6 @@ public class User extends AbstractPersistable<Long> {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false, length = 1)
 	private UserStatus status;
-
-	@OneToOne(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
-	private AuthorizationToken authorizationToken;
 
 	/**
 	 * @return the email
@@ -151,20 +141,4 @@ public class User extends AbstractPersistable<Long> {
 		return DigestUtils.md5DigestAsHex(passwordToHash.getBytes());
 	}
 
-	/**
-	 * @return the authorizationToken
-	 */
-	public AuthorizationToken getAuthorizationToken() {
-		return authorizationToken;
-	}
-
-	/**
-	 * @param authorizationToken
-	 *            the authorizationToken to set
-	 */
-	public void setAuthorizationToken(AuthorizationToken authorizationToken) {
-		this.authorizationToken = authorizationToken;
-	}
-
-	
 }

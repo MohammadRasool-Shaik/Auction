@@ -3,20 +3,24 @@
  */
 package com.sapient.auction.service.impl;
 
-import java.util.logging.Logger;
+import java.util.List;
 
 import javax.transaction.Transactional;
+import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sapient.auction.dto.AuthenticatedUserToken;
-import com.sapient.auction.dto.LoginRequest;
+import com.sapient.auction.dto.LoginDTO;
+import com.sapient.auction.dto.ResponseStatus;
 import com.sapient.auction.exception.AuthenticationException;
-import com.sapient.auction.model.AuthorizationToken;
 import com.sapient.auction.model.User;
 import com.sapient.auction.repository.UserRepository;
 import com.sapient.auction.service.IUserService;
+import com.sapient.auction.util.JWTokenUtility;
 
 /**
  * @author mshai9
@@ -24,60 +28,63 @@ import com.sapient.auction.service.IUserService;
  */
 @Service("userService")
 public class UserService implements IUserService {
-	private static Logger logger = Logger.getLogger(UserService.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(UserService.class.getName());
 
 	@Autowired
 	private UserRepository userRepository;
 
 	@Transactional
 	@Override
-	public AuthenticatedUserToken creatUser(User user) {
+	public ResponseStatus creatUser(User user) {
 		User searchedForUser = userRepository.findByEmail(user.getEmail().toLowerCase().trim());
 		if (searchedForUser != null) {
-			throw new AuthenticationException("User already exists with same email-id");
+			logger.error(user.getEmail() + " email_id is taken. Try another..!");
+			throw new AuthenticationException(user.getEmail() + " email_id is taken. Try another");
 		}
-		user.setEmail(user.getEmail().toLowerCase());
 		user.setPassword(user.hashPassword(user.getPassword()));
-		AuthenticatedUserToken authenticatedUserToken = new AuthenticatedUserToken(user.getEmail(),
-				createAuthorizationToken(user).getToken());
-		return authenticatedUserToken;
-	}
-
-	@Override
-	public AuthorizationToken createAuthorizationToken(User user) {
-		if (user.getAuthorizationToken() == null || user.getAuthorizationToken().hasExpired()) {
-			user.setAuthorizationToken(new AuthorizationToken(user));
-			userRepository.save(user);
+		User savedUser = userRepository.save(user);
+		if (savedUser != null) {
+			return new ResponseStatus(Response.Status.OK.getStatusCode(), "User successfully created");
+		} else {
+			logger.error("Got Some error while saving the user..!");
+			return new ResponseStatus(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), "Got Some error while creating the user");
 		}
-		return user.getAuthorizationToken();
+
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * Login supports authentication against an email attribute. If a User is
-	 * retrieved that matches, the password in the request is hashed and
-	 * compared to the persisted password for the User account.
+	 * Login supports authentication against an email attribute. If a User is retrieved that matches, the password in the request is hashed and compared to the persisted password
+	 * for the User account.
 	 */
 	@Override
 	@Transactional
-	public AuthenticatedUserToken login(LoginRequest request) {
-		User user = null;
-		user = userRepository.findByEmail(request.getUsername());
+	public AuthenticatedUserToken login(LoginDTO request) {
+		User user = userRepository.findByEmail(request.getEmail());
 		if (user == null) {
-			throw new AuthenticationException("Authentication Error. The username or password were incorrect");
+			logger.error(request.getEmail() + " not exists in the database");
+			throw new AuthenticationException(Response.Status.FORBIDDEN.getStatusCode(),"Access Denied for this functionality !!!");
 		}
-		String hashedPassword = null;
-		try {
-			hashedPassword = user.hashPassword(request.getPassword());
-		} catch (Exception e) {
-			throw new AuthenticationException("Authentication Error. The username or password were incorrect");
-		}
+		String hashedPassword = user.hashPassword(request.getPassword());
 		if (hashedPassword.equals(user.getPassword())) {
-			return new AuthenticatedUserToken(user.getEmail(), createAuthorizationToken(user).getToken());
+			// Issue a token for the user
+			AuthenticatedUserToken authenticatedUserToken = new AuthenticatedUserToken(user.getEmail(), "Bearer " + JWTokenUtility.buildJWT(user));
+			authenticatedUserToken.setStatus(new ResponseStatus(Response.Status.OK.getStatusCode(), user.getDisplayName() + " Successfully loggedin"));
+			return authenticatedUserToken;
 		} else {
-			throw new AuthenticationException("Authentication Error. The username or password were incorrect");
+			logger.error(request.getEmail() + " password is not correct");
+			throw new AuthenticationException();
 		}
+	}
+
+	@Override
+	public List<User> fetchAllUsers() {
+		return userRepository.findAll();
+	}
+
+	public User findUser(Long id) {
+		return userRepository.findOne(id);
 	}
 
 }

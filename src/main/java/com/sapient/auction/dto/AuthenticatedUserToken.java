@@ -1,33 +1,77 @@
 package com.sapient.auction.dto;
 
+import java.io.Serializable;
+
 /**
  * @author: mshai9
  */
-public class AuthenticatedUserToken {
+public class AuthenticatedUserToken implements Serializable {
 
-    private String userId;
-    private String token;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1386584105236519252L;
+	private String email;
+	private String token;
+	private ResponseStatus status;
 
-    public AuthenticatedUserToken(){}
+	public AuthenticatedUserToken() {
+		super();
+	}
 
-    public AuthenticatedUserToken(String userId, String sessionToken) {
-        this.userId = userId;
-        this.token = sessionToken;
-    }
+	/**
+	 * @param email
+	 * @param token
+	 */
+	public AuthenticatedUserToken(String email, String token) {
+		super();
+		this.email = email;
+		this.token = token;
+	}
 
-    public String getUserId() {
-        return userId;
-    }
+	/**
+	 * @return the token
+	 */
+	public String getToken() {
+		return token;
+	}
 
-    public String getToken() {
-        return token;
-    }
+	/**
+	 * @param token
+	 *            the token to set
+	 */
+	public void setToken(String token) {
+		this.token = token;
+	}
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+	/**
+	 * @return the email
+	 */
+	public String getEmail() {
+		return email;
+	}
 
-    public void setToken(String token) {
-        this.token = token;
-    }
+	/**
+	 * @param email
+	 *            the email to set
+	 */
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	/**
+	 * @return the status
+	 */
+	public ResponseStatus getStatus() {
+		return status;
+	}
+
+	/**
+	 * @param status
+	 *            the status to set
+	 */
+	public void setStatus(ResponseStatus status) {
+		this.status = status;
+	}
+
 }

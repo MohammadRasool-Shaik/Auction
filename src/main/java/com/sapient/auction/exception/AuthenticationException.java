@@ -1,22 +1,31 @@
+/**
+ * 
+ */
 package com.sapient.auction.exception;
 
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
-public class AuthenticationException extends WebApplicationException {
+/**
+ * @author mshai9
+ *
+ */
+public class AuthenticationException extends BaseWebApplicationException {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1239640888192844602L;
+	private static final long serialVersionUID = -405881832308743189L;
 
 	public AuthenticationException() {
-		super();
+		super(Response.Status.UNAUTHORIZED.getStatusCode(), "Authentication Error. The username or password were incorrect");
 	}
 
-	public AuthenticationException(String message) {
-		super(message);
+	public AuthenticationException(int errorStatusCode, String errorMessage) {
+		super(errorStatusCode, errorMessage);
 	}
 
-	public AuthenticationException(int statusCode, String accessBlockedForAllUsers) {
+	public AuthenticationException(String errorMessage) {
+		super(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), errorMessage);
 	}
+
 }

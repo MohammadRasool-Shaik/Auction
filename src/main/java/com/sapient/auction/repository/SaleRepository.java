@@ -5,23 +5,24 @@ package com.sapient.auction.repository;
 
 import java.util.List;
 
-import org.springframework.data.repository.CrudRepository;
+import javax.transaction.Transactional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.sapient.auction.enumerator.SaleStatus;
 import com.sapient.auction.model.Sale;
 
 /**
+ * A database repository for performing database functionalities.
+ * 
  * @author mshai9
  *
  */
-public interface SaleRepository extends CrudRepository<Sale, Integer> {
+@Transactional
+public interface SaleRepository extends JpaRepository<Sale, Integer> {
 
 	Sale findBySaleId(Integer saleId);
 
-	@SuppressWarnings("unchecked")
-	Sale save(Sale sale);
+	List<Sale> findBySaleStatus(SaleStatus saleStatus);
 
-//	List<Sale> findByActive(boolean isActive);
-	
-	List<Sale> findAll();
-	
 }

@@ -23,9 +23,6 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 @Table(indexes = { @Index(name = "IDX_BIDX1", columnList = "saleId,buyerId") })
 public class Bid extends AbstractPersistable<Long> {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 8420190973311895143L;
 
 	private Double amount;

@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import com.sapient.auction.model.AuthorizationToken;
 
 /**
- * @author Admin
+ * @author mshai9
  *
  */
 public interface AuthorizationTokenRepository extends JpaRepository<AuthorizationToken, Long> {

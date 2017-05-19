@@ -45,7 +45,7 @@ public class EntityModelAssembler {
 		entity.setUpdatedDate(new Date());
 		entity.setProductDescription(dto.getProductDescription());
 		entity.setCategory(dto.getCategory());
-//		entity.setProductImage(dto.getProductImage());
+		entity.setProductImage(dto.getProductImage());
 		if (entity.getStartDate().compareTo(new Date()) > 0) {
 			entity.setSaleStatus(SaleStatus.A);
 		}

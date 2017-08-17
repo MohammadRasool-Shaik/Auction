@@ -1,143 +1,132 @@
 /**
- * 
+ *
  */
 package org.rash.auction.model;
-
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 import org.rash.auction.enumerator.UserRole;
 import org.rash.auction.enumerator.UserStatus;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.util.DigestUtils;
 
+import javax.persistence.*;
+
 /**
  * @author mshai9
- *
  */
 @Entity
 public class User extends AbstractPersistable<Long> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6272073593793343818L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6272073593793343818L;
 
-	@Column(nullable = false)
-	private String displayName;
+    @Column(nullable = false)
+    private String displayName;
 
-	@Column(unique = true, nullable = false)
-	private String email;
+    @Column(unique = true, nullable = false)
+    private String email;
 
-	@Column(nullable = false)
-	private String password;
+    @Column(nullable = false)
+    private String password;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false, length = 1)
-	private UserRole userRole;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 1)
+    private UserRole userRole;
 
-	@Embedded
-	private Address address;
+    @Embedded
+    private Address address;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false, length = 1)
-	private UserStatus status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 1)
+    private UserStatus status;
 
-	/**
-	 * @return the email
-	 */
-	public String getEmail() {
-		return email;
-	}
+    /**
+     * @return the email
+     */
+    public String getEmail() {
+        return email;
+    }
 
-	/**
-	 * @param email
-	 *            the email to set
-	 */
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    /**
+     * @param email the email to set
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	/**
-	 * @return the password
-	 */
-	public String getPassword() {
-		return password;
-	}
+    /**
+     * @return the password
+     */
+    public String getPassword() {
+        return password;
+    }
 
-	/**
-	 * @param password
-	 *            the password to set
-	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    /**
+     * @param password the password to set
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	/**
-	 * @return the userRole
-	 */
-	public UserRole getUserRole() {
-		return userRole;
-	}
+    /**
+     * @return the userRole
+     */
+    public UserRole getUserRole() {
+        return userRole;
+    }
 
-	/**
-	 * @param userRole
-	 *            the userRole to set
-	 */
-	public void setUserRole(UserRole userRole) {
-		this.userRole = userRole;
-	}
+    /**
+     * @param userRole the userRole to set
+     */
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
+    }
 
-	/**
-	 * @return the address
-	 */
-	public Address getAddress() {
-		return address;
-	}
+    /**
+     * @return the address
+     */
+    public Address getAddress() {
+        return address;
+    }
 
-	/**
-	 * @param address
-	 *            the address to set
-	 */
-	public void setAddress(Address address) {
-		this.address = address;
-	}
+    /**
+     * @param address the address to set
+     */
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 
-	/**
-	 * @return the displayName
-	 */
-	public String getDisplayName() {
-		return displayName;
-	}
+    /**
+     * @return the displayName
+     */
+    public String getDisplayName() {
+        return displayName;
+    }
 
-	/**
-	 * @param displayName
-	 *            the displayName to set
-	 */
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
+    /**
+     * @param displayName the displayName to set
+     */
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 
-	/**
-	 * @return the status
-	 */
-	public UserStatus getStatus() {
-		return status;
-	}
+    /**
+     * @return the status
+     */
+    public UserStatus getStatus() {
+        return status;
+    }
 
-	/**
-	 * @param status
-	 *            the status to set
-	 */
-	public void setStatus(UserStatus status) {
-		this.status = status;
-	}
+    /**
+     * @param status the status to set
+     */
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
 
-	public String hashPassword(String passwordToHash) {
-		return DigestUtils.md5DigestAsHex(passwordToHash.getBytes());
-	}
+    public String hashPassword(String passwordToHash) {
+        return DigestUtils.md5DigestAsHex(passwordToHash.getBytes());
+    }
 
 }

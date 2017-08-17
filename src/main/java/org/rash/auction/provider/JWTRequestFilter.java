@@ -1,9 +1,16 @@
 /**
- * 
+ *
  */
 package org.rash.auction.provider;
 
-import java.lang.reflect.Method;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.rash.auction.exception.AuthenticationException;
+import org.rash.auction.util.JWTPrincipal;
+import org.rash.auction.util.JWTSecurityContext;
+import org.rash.auction.util.JWTokenUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Priority;
 import javax.annotation.security.DenyAll;
@@ -17,74 +24,64 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
-
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.rash.auction.exception.AuthenticationException;
-import org.rash.auction.util.JWTPrincipal;
-import org.rash.auction.util.JWTSecurityContext;
-import org.rash.auction.util.JWTokenUtility;
+import java.lang.reflect.Method;
 
 /**
  * @author mshai9
- * 
  */
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 public class JWTRequestFilter implements ContainerRequestFilter {
 
-	private static final String ACCESS_BLOCKED_FOR_ALL_USERS = "Access blocked for all users !!";
+    private static final String ACCESS_BLOCKED_FOR_ALL_USERS = "Access blocked for all users !!";
 
-	private static final String YOU_CANNOT_ACCESS_THIS_RESOURCE = "You cannot access this resource";
+    private static final String YOU_CANNOT_ACCESS_THIS_RESOURCE = "You cannot access this resource";
 
-	private static final Logger logger = LoggerFactory.getLogger(JWTRequestFilter.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(JWTRequestFilter.class.getName());
 
-	@Context
-	private ResourceInfo resourceInfo;
+    @Context
+    private ResourceInfo resourceInfo;
 
 	/*
-	 * * * (non-Javadoc)
+     * * * (non-Javadoc)
 	 * 
 	 * @see javax.ws.rs.container.ContainerRequestFilter#filter(javax.ws.rs.container .ContainerRequestContext)
 	 */
 
-	@Override
-	public void filter(ContainerRequestContext requestContext) {
-		Method method = resourceInfo.getResourceMethod();
-		// No Permit for all
-		if (!method.isAnnotationPresent(PermitAll.class)) {
-			// Access denied for all
-			if (method.isAnnotationPresent(DenyAll.class)) {
-				throw new AuthenticationException(Response.Status.FORBIDDEN.getStatusCode(), ACCESS_BLOCKED_FOR_ALL_USERS);
-			}
-			// Get the HTTP Authorization header from the request
-			String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+    @Override
+    public void filter(ContainerRequestContext requestContext) {
+        Method method = resourceInfo.getResourceMethod();
+        // No Permit for all
+        if (!method.isAnnotationPresent(PermitAll.class)) {
+            // Access denied for all
+            if (method.isAnnotationPresent(DenyAll.class)) {
+                throw new AuthenticationException(Response.Status.FORBIDDEN.getStatusCode(), ACCESS_BLOCKED_FOR_ALL_USERS);
+            }
+            // Get the HTTP Authorization header from the request
+            String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
 
-			// Check if the HTTP Authorization header is present and formatted correctly
-			if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-				logger.error(YOU_CANNOT_ACCESS_THIS_RESOURCE);
-				throw new AuthenticationException(Response.Status.NOT_ACCEPTABLE.getStatusCode(), YOU_CANNOT_ACCESS_THIS_RESOURCE);
-			} else {
-				String token = authorizationHeader.substring("Bearer".length()).trim();
-				try {
-					final JwtClaims claims = JWTokenUtility.validateTokenClaims(token);
+            // Check if the HTTP Authorization header is present and formatted correctly
+            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+                logger.error(YOU_CANNOT_ACCESS_THIS_RESOURCE);
+                throw new AuthenticationException(Response.Status.NOT_ACCEPTABLE.getStatusCode(), YOU_CANNOT_ACCESS_THIS_RESOURCE);
+            } else {
+                String token = authorizationHeader.substring("Bearer".length()).trim();
+                try {
+                    final JwtClaims claims = JWTokenUtility.validateTokenClaims(token);
 
-					final JWTPrincipal principal = JWTokenUtility.buildPrincipal(claims);
+                    final JWTPrincipal principal = JWTokenUtility.buildPrincipal(claims);
 
-					final SecurityContext securityContext = requestContext.getSecurityContext();
+                    final SecurityContext securityContext = requestContext.getSecurityContext();
 
-					JWTSecurityContext jwSecurityContext = new JWTSecurityContext(principal, securityContext.isSecure());
-					requestContext.setSecurityContext(jwSecurityContext);
+                    JWTSecurityContext jwSecurityContext = new JWTSecurityContext(principal, securityContext.isSecure());
+                    requestContext.setSecurityContext(jwSecurityContext);
 
-				} catch (InvalidJwtException invalidJwtException) {
-					logger.error(invalidJwtException.getMessage() + " " + invalidJwtException.getStackTrace());
-					throw new AuthenticationException(Response.Status.UNAUTHORIZED.getStatusCode(), invalidJwtException.getMessage());
-				}
-			}
-		}
-	}
+                } catch (InvalidJwtException invalidJwtException) {
+                    logger.error(invalidJwtException.getMessage() + " " + invalidJwtException.getStackTrace());
+                    throw new AuthenticationException(Response.Status.UNAUTHORIZED.getStatusCode(), invalidJwtException.getMessage());
+                }
+            }
+        }
+    }
 
 }

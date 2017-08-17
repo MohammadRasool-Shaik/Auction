@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.rash.auction.util;
 
@@ -11,29 +11,27 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author mshai9
- *
  */
 public class RsaKeyProducer {
 
-	private static final Logger logger = LoggerFactory.getLogger(RsaKeyProducer.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(RsaKeyProducer.class.getName());
 
-	private static RsaJsonWebKey rsaJsonWebKey;
+    private static RsaJsonWebKey rsaJsonWebKey;
 
-	private RsaKeyProducer() {
-	}
+    private RsaKeyProducer() {
+    }
 
-	/**
-	 * 
-	 * not an ideal implementation since does not implement double-lock synchronization check
-	 */
-	public static RsaJsonWebKey produce() {
-		if (rsaJsonWebKey == null) {
-			try {
-				rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
-			} catch (JoseException joseException) {
-				logger.error("Got an error while generating RsaJsonWebKey"+joseException.getMessage());
-			}
-		}
-		return rsaJsonWebKey;
-	}
+    /**
+     * not an ideal implementation since does not implement double-lock synchronization check
+     */
+    public static RsaJsonWebKey produce() {
+        if (rsaJsonWebKey == null) {
+            try {
+                rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
+            } catch (JoseException joseException) {
+                logger.error("Got an error while generating RsaJsonWebKey" + joseException.getMessage());
+            }
+        }
+        return rsaJsonWebKey;
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.rash.auction.util;
 
@@ -11,137 +11,135 @@ import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.lang.JoseException;
+import org.rash.auction.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.rash.auction.model.User;
-
 /**
  * @author mshai9
- *
  */
 public class JWTokenUtility {
 
-	private static final Logger logger = LoggerFactory.getLogger(RsaKeyProducer.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(RsaKeyProducer.class.getName());
 
-	public static String buildJWT(User user) {
-		RsaJsonWebKey rsaJsonWebKey = RsaKeyProducer.produce();
-		logger.info("RSA hash code... " + rsaJsonWebKey.hashCode());
+    public static String buildJWT(User user) {
+        RsaJsonWebKey rsaJsonWebKey = RsaKeyProducer.produce();
+        logger.info("RSA hash code... " + rsaJsonWebKey.hashCode());
 
-		JwtClaims claims = new JwtClaims();
+        JwtClaims claims = new JwtClaims();
 
-		claims.setSubject(user.getEmail()); // the subject/principal is whom the token is about
-		claims.setClaim("roles", user.getUserRole().getKey());
-		claims.setClaim("displayName", user.getDisplayName());
-		claims.setIssuedAtToNow();
+        claims.setSubject(user.getEmail()); // the subject/principal is whom the token is about
+        claims.setClaim("roles", user.getUserRole().getKey());
+        claims.setClaim("displayName", user.getDisplayName());
+        claims.setIssuedAtToNow();
 
-		// claims.setExpirationTime(NumericDate.fromSeconds(60 * 60));
+        // claims.setExpirationTime(NumericDate.fromSeconds(60 * 60));
 
-		JsonWebSignature jsonWebSignature = new JsonWebSignature();
-		jsonWebSignature.setPayload(claims.toJson());
-		jsonWebSignature.setKey(rsaJsonWebKey.getPrivateKey());
-		jsonWebSignature.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
+        JsonWebSignature jsonWebSignature = new JsonWebSignature();
+        jsonWebSignature.setPayload(claims.toJson());
+        jsonWebSignature.setKey(rsaJsonWebKey.getPrivateKey());
+        jsonWebSignature.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
 
-		String jsonWebToken = null;
-		try {
-			jsonWebToken = jsonWebSignature.getCompactSerialization();
-		} catch (JoseException ex) {
-			ex.printStackTrace();
-		}
+        String jsonWebToken = null;
+        try {
+            jsonWebToken = jsonWebSignature.getCompactSerialization();
+        } catch (JoseException ex) {
+            ex.printStackTrace();
+        }
 
-		logger.info("Claim:\n" + claims);
-		logger.info("JWS:\n" + jsonWebSignature);
+        logger.info("Claim:\n" + claims);
+        logger.info("JWS:\n" + jsonWebSignature);
 
-		logger.info("JWT:\n" + jsonWebToken);
+        logger.info("JWT:\n" + jsonWebToken);
 
-		return jsonWebToken;
-	}
-	
-	
-	public static String buildJWT(String subject) {
-		RsaJsonWebKey rsaJsonWebKey = RsaKeyProducer.produce();
+        return jsonWebToken;
+    }
 
-		System.out.println("RSA hash code... " + rsaJsonWebKey.hashCode());
 
-		JwtClaims claims = new JwtClaims();
-		claims.setSubject(subject); // the subject/principal is whom the token is about
+    public static String buildJWT(String subject) {
+        RsaJsonWebKey rsaJsonWebKey = RsaKeyProducer.produce();
 
-		JsonWebSignature jws = new JsonWebSignature();
-		jws.setPayload(claims.toJson());
-		jws.setKey(rsaJsonWebKey.getPrivateKey());
-		jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
+        System.out.println("RSA hash code... " + rsaJsonWebKey.hashCode());
 
-		String jwt = null;
-		try {
-			jwt = jws.getCompactSerialization();
-		} catch (JoseException ex) {
-			logger.info("" + ex);
-		}
+        JwtClaims claims = new JwtClaims();
+        claims.setSubject(subject); // the subject/principal is whom the token is about
 
-		System.out.println("Claim:\n" + claims);
-		System.out.println("JWS:\n" + jws);
-		System.out.println("JWT:\n" + jwt);
+        JsonWebSignature jws = new JsonWebSignature();
+        jws.setPayload(claims.toJson());
+        jws.setKey(rsaJsonWebKey.getPrivateKey());
+        jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
 
-		return jwt;
-	}
+        String jwt = null;
+        try {
+            jwt = jws.getCompactSerialization();
+        } catch (JoseException ex) {
+            logger.info("" + ex);
+        }
 
-	/**
-	 * Validate the JSON Web Token for signature, expiration and not before time.
-	 */
-	public static String validateToken(String userJWToken) throws InvalidJwtException {
-		String subject = null;
-		RsaJsonWebKey rsaJsonWebKey = RsaKeyProducer.produce();
+        System.out.println("Claim:\n" + claims);
+        System.out.println("JWS:\n" + jws);
+        System.out.println("JWT:\n" + jwt);
 
-		logger.info("RSA hash code... " + rsaJsonWebKey.hashCode());
+        return jwt;
+    }
 
-		JwtConsumer jwtConsumer = new JwtConsumerBuilder().setRequireSubject() // the JWT must have a subject claim
-				.setVerificationKey(rsaJsonWebKey.getKey()) // verify the signature with the public key
-				.build(); // create the JwtConsumer instance
+    /**
+     * Validate the JSON Web Token for signature, expiration and not before time.
+     */
+    public static String validateToken(String userJWToken) throws InvalidJwtException {
+        String subject = null;
+        RsaJsonWebKey rsaJsonWebKey = RsaKeyProducer.produce();
 
-		try {
-			// Validate the JWT and process it to the Claims
-			JwtClaims jwtClaims = jwtConsumer.processToClaims(userJWToken);
-			subject = (String) jwtClaims.getClaimValue("sub");
-			logger.info("JWT validation succeeded! " + jwtClaims);
-		} catch (InvalidJwtException e) {
-			e.printStackTrace(); // on purpose
-			throw e;
-		}
+        logger.info("RSA hash code... " + rsaJsonWebKey.hashCode());
 
-		return subject;
-	}
+        JwtConsumer jwtConsumer = new JwtConsumerBuilder().setRequireSubject() // the JWT must have a subject claim
+                .setVerificationKey(rsaJsonWebKey.getKey()) // verify the signature with the public key
+                .build(); // create the JwtConsumer instance
 
-	public static JwtClaims validateTokenClaims(String userJWToken) throws InvalidJwtException {
-		RsaJsonWebKey rsaJsonWebKey = RsaKeyProducer.produce();
+        try {
+            // Validate the JWT and process it to the Claims
+            JwtClaims jwtClaims = jwtConsumer.processToClaims(userJWToken);
+            subject = (String) jwtClaims.getClaimValue("sub");
+            logger.info("JWT validation succeeded! " + jwtClaims);
+        } catch (InvalidJwtException e) {
+            e.printStackTrace(); // on purpose
+            throw e;
+        }
 
-		logger.info("RSA hash code... " + rsaJsonWebKey.hashCode());
+        return subject;
+    }
 
-		JwtConsumer jwtConsumer = new JwtConsumerBuilder().setRequireSubject() // the JWT must have a subject claim
-				.setVerificationKey(rsaJsonWebKey.getKey()) // verify the signature with the public key
-				.build(); // create the JwtConsumer instance
+    public static JwtClaims validateTokenClaims(String userJWToken) throws InvalidJwtException {
+        RsaJsonWebKey rsaJsonWebKey = RsaKeyProducer.produce();
 
-		JwtClaims jwtClaims = null;
-		try {
-			// Validate the JWT and process it to the Claims
-			jwtClaims = jwtConsumer.processToClaims(userJWToken);
-			logger.info("JWT validation succeeded! " + jwtClaims);
-		} catch (InvalidJwtException e) {
-			e.printStackTrace(); // on purpose
-			throw e;
-		}
+        logger.info("RSA hash code... " + rsaJsonWebKey.hashCode());
 
-		return jwtClaims;
-	}
+        JwtConsumer jwtConsumer = new JwtConsumerBuilder().setRequireSubject() // the JWT must have a subject claim
+                .setVerificationKey(rsaJsonWebKey.getKey()) // verify the signature with the public key
+                .build(); // create the JwtConsumer instance
 
-	public static JWTPrincipal buildPrincipal(final JwtClaims claims) {
-		JWTPrincipal principal = new JWTPrincipal();
+        JwtClaims jwtClaims = null;
+        try {
+            // Validate the JWT and process it to the Claims
+            jwtClaims = jwtConsumer.processToClaims(userJWToken);
+            logger.info("JWT validation succeeded! " + jwtClaims);
+        } catch (InvalidJwtException e) {
+            e.printStackTrace(); // on purpose
+            throw e;
+        }
 
-		principal.setName((String) claims.getClaimValue("sub"));
+        return jwtClaims;
+    }
 
-		String role = (String) claims.getClaimValue("roles");
-		principal.setRoles(new String[] { role });
+    public static JWTPrincipal buildPrincipal(final JwtClaims claims) {
+        JWTPrincipal principal = new JWTPrincipal();
 
-		principal.setDisplayName((String) claims.getClaimValue("displayName"));
-		return principal;
-	}
+        principal.setName((String) claims.getClaimValue("sub"));
+
+        String role = (String) claims.getClaimValue("roles");
+        principal.setRoles(new String[]{role});
+
+        principal.setDisplayName((String) claims.getClaimValue("displayName"));
+        return principal;
+    }
 }
